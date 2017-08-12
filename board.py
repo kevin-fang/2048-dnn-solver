@@ -1,6 +1,5 @@
 from random import randint
 
-
 zero = lambda x: True if x == 0 else False
 
 # fill an empty space with the contents of the tiles after
@@ -35,12 +34,22 @@ def moveRowLeft(row):
             row = fillEmpty(row, index)
     return row
 
-testing_board = [[2, 2, 0, 2], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
+# adds a random 2 or 4 to the board
+def addRandomTile(board):
+    return board
+
 
 class Board:
+    testing_board = [[0, 2, 2, 2], 
+                     [0, 0, 0, 0], 
+                     [0, 4, 0, 0], 
+                     [0, 0, 32, 0]]
 
+    # initialize with 4x4 board with two 2's randomly placed
     def __init__(self, testing=False):
-        self.board = [[0]*4 for i in range(4)]
+        # create 4x4 array of zeros
+        self.board = [[0] * 4 for i in range(4)]
+
         # game starts with two 2's placed randomly on the board
         x1, y1 = randint(0, 3), randint(0, 3)
         x2, y2 = randint(0, 3), randint(0, 3)
@@ -52,8 +61,53 @@ class Board:
         self.board[x1][y1] = 2
         self.board[x2][y2] = 2
         if (testing):
-            self.board = testing_board
+            self.board = self.testing_board
     
+    def flipBoard(self):
+        board = self.board
+        for index, row in enumerate(board):
+            board[index] = row[::-1]
+    
+    def rotateCW(self):
+        self.board = [list(a) for a in zip(*self.board[::-1])]
+    
+    def rotateCCW(self):
+        for i in range(3):
+            self.rotateCW()
+
+    # make a left move. Used for each other implementation
     def left(self):
         for index, row in enumerate(self.board):
             self.board[index] = moveRowLeft(row)
+        self.board = addRandomTile(self.board)
+
+    # flip board, move left, and flip board again. Seems complicated but is actually the simplest way to implement
+    # [2, 0, 0, 4] -> [4, 0, 0, 2] -> [4, 2, 0, 0] -> [0, 0, 2, 4]
+    def right(self):
+        self.flipBoard()
+        self.left()
+        self.flipBoard()
+
+    # rotate rows counterclockwise, move left, and rotate rows clockwise
+    def up(self):
+        self.rotateCCW()
+        self.left()
+        self.rotateCW()
+    
+    # rotate rows clockwise, move left, and rotate rows counterclockwise
+    def down(self):
+        self.rotateCW()
+        self.left()
+        self.rotateCCW()
+
+    # parse an array and make the appropriate move. For AI purposes.
+    # [up, down, left, right]
+    def oneHotMove(self, oneHotArray):
+        if oneHotArray[0] == 1: 
+            self.up()
+        elif oneHotArray[1] == 1:
+            self.down()
+        elif oneHotArray[2] == 1:
+            self.left()
+        elif oneHotArray[3] == 1:
+            self.right()
