@@ -1,13 +1,41 @@
 from random import randint
 
 
-def zero(item):
-    if item == 0:
-        return True
-    else:
-        return False
+zero = lambda x: True if x == 0 else False
 
-testing_board = [[0, 2, 2, 2], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
+# fill an empty space with the contents of the tiles after
+# [4, 0, 0, 2] -> [4, 2, 0, 0]
+# [4, 0, 2, 0] -> [4, 2, 0, 0]
+def fillEmpty(row, givenIndex):
+    fillIndex = givenIndex + 1
+    if (fillIndex == len(row) - 1):
+        return row
+    counter = 0 # only allow it to loop to the end of the row
+    while row[fillIndex] == 0 and counter < len(row):
+        for i in range(fillIndex, len(row) - 1):
+            row[i] = row[i + 1]
+            row[i + 1] = 0
+        counter += 1
+    return row
+
+# move a row left and merge everything
+# [2, 2, 0, 0] -> [4, 0, 0, 0]
+# [2, 2 ,2, 2] -> [4, 4, 0, 0]
+# [0, 2, 2, 2] -> [4, 2, 0, 0]
+def moveRowLeft(row):
+    if row[0] == 0:
+        row = fillEmpty(row, -1)
+    for index, item in enumerate(row):
+        if index < len(row) - 1:
+            row = fillEmpty(row, index)
+        # if the index is in the first, second, or third and there is a merge to be made, merge and fill
+        if index < len(row) - 1 and item == row[index + 1] and not zero(item):
+            row[index] *= 2
+            row[index + 1] = 0
+            row = fillEmpty(row, index)
+    return row
+
+testing_board = [[2, 2, 0, 2], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
 
 class Board:
 
@@ -27,50 +55,5 @@ class Board:
             self.board = testing_board
     
     def left(self):
-        # start from the top row, and move everything left, adding if necessary
-        # continue for other rows
-        # [0, 0, 2, 0] -> [2, 0, 0, 0]
-        # [2, 2, 2, 2] -> [4, 4, 0, 0]
-        # loop through array until first nonzero item. If none exist, ignore.
-        # if the very first item is zero, move the first nonzero item to the first position.
-        # if the very first item is not zero, check if the first nonzero item has the same value. If it does, merge the values. Else, move it to the 2nd position.
-        # repeat this for the second item.
-        for row in self.board:
-            '''
-            for index, item in enumerate(row):
-                if not zero(item):
-                    checking_index = index + 1
-                    for inner_index, value in enumerate(row[checking_index:]):
-                        if not zero(value):
-                            if value == row[index]:
-                                row[index] *= 2
-                                row[inner_index + checking_index] = 0
-                            for 
-                else:
-                    for inner_index, value in enumerate(row[index + 1:]):
-                        if not zero(value):
-                            row[index] = value
-                            row[inner_index + index] = 0
-                
-                print(row, index)
-            '''
-            for index, item in enumerate(row):
-                # [2, 2, 2, 2] -> [4, 0, 4, 0]
-                # [2, 0, 2, 0] -> [2, 0, 2, 0]
-                # [0, 2, 2, 2] -> [0, 4, 0, 2]
-                if index < len(row) - 1 and item == row[index + 1]:
-                    row[index] *= 2
-                    row[index + 1] = 0
-
- 
-    def right(self):
-        pass
-    
-    def up(self):
-        pass
-
-    def down(self):
-        pass
-
-    def move1hot(self):
-        pass
+        for index, row in enumerate(self.board):
+            self.board[index] = moveRowLeft(row)
