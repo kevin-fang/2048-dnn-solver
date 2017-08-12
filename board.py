@@ -1,6 +1,7 @@
-from random import randint
+from random import choice, randint
 
 zero = lambda x: True if x == 0 else False
+possibleRandom = [2, 4]
 
 # fill an empty space with the contents of the tiles after
 # [4, 0, 0, 2] -> [4, 2, 0, 0]
@@ -34,16 +35,11 @@ def moveRowLeft(row):
             row = fillEmpty(row, index)
     return row
 
-# adds a random 2 or 4 to the board
-def addRandomTile(board):
-    return board
-
-
 class Board:
-    testing_board = [[0, 2, 2, 2], 
+    testingBoard = [[0, 2, 2, 2], 
                      [0, 0, 0, 0], 
-                     [0, 4, 0, 0], 
-                     [0, 0, 32, 0]]
+                     [0, 4, 0, 2], 
+                     [0, 0, 32, 4]]
 
     # initialize with 4x4 board with two 2's randomly placed
     def __init__(self, testing=False):
@@ -58,10 +54,10 @@ class Board:
         while x1 == x2 and y1 == y2:
             y1 = randint(0, 3)
 
-        self.board[x1][y1] = 2
-        self.board[x2][y2] = 2
+        self.board[x1][y1] = choice(possibleRandom)
+        self.board[x2][y2] = choice(possibleRandom)
         if (testing):
-            self.board = self.testing_board
+            self.board = self.testingBoard
     
     def flipBoard(self):
         board = self.board
@@ -75,11 +71,26 @@ class Board:
         for i in range(3):
             self.rotateCW()
 
+    # adds a random 2 or 4 to the board
+    def addRandomTile(self):
+        emptyVals = []
+        for y, row in enumerate(self.board):
+            for x, val in enumerate(row):
+                if val == 0:
+                    emptyVals.append((x, y))
+        if len(emptyVals) == 0:
+            return False
+        else:
+            newCoords = choice(emptyVals)
+            newVal = choice(possibleRandom)
+            self.board[newCoords[0]][newCoords[1]] = newVal
+            return True
+
     # make a left move. Used for each other implementation
     def left(self):
         for index, row in enumerate(self.board):
             self.board[index] = moveRowLeft(row)
-        self.board = addRandomTile(self.board)
+        self.addRandomTile()
 
     # flip board, move left, and flip board again. Seems complicated but is actually the simplest way to implement
     # [2, 0, 0, 4] -> [4, 0, 0, 2] -> [4, 2, 0, 0] -> [0, 0, 2, 4]
