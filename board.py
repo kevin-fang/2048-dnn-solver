@@ -71,8 +71,19 @@ class Board:
         for i in range(3):
             self.rotateCW()
 
+    def gameValid(self):
+        emptyVals = []
+        for y, row in enumerate(self.board):
+            for x, val in enumerate(row):
+                if val == 0:
+                    emptyVals.append((x, y))
+        if len(emptyVals) == 0:
+            return False
+        else:
+            return True
+
     # adds a random 2 or 4 to the board
-    def addRandomTile(self):
+    def checkBoardAndAddRandomTile(self):
         emptyVals = []
         for y, row in enumerate(self.board):
             for x, val in enumerate(row):
@@ -86,11 +97,20 @@ class Board:
             self.board[newCoords[0]][newCoords[1]] = newVal
             return True
 
+    def calculateScore(self):
+        score = 0
+        for y, row in enumerate(self.board):
+            for x, val in enumerate(row):
+                score += val
+        return score
+
     # make a left move. Used for each other implementation
     def left(self):
         for index, row in enumerate(self.board):
             self.board[index] = moveRowLeft(row)
-        self.addRandomTile()
+        gameValid = self.checkBoardAndAddRandomTile()
+        if not gameValid:
+            print("Game over. Score: " + self.calculateScore())
 
     # flip board, move left, and flip board again. Seems complicated but is actually the simplest way to implement
     # [2, 0, 0, 4] -> [4, 0, 0, 2] -> [4, 2, 0, 0] -> [0, 0, 2, 4]
