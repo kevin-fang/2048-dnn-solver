@@ -3,7 +3,8 @@ import collections, copy
 import numpy as np
 
 zero = lambda x: True if x == 0 else False
-possibleRandom = [2, 4]
+# possibility of generating a 4 is 10%
+possibleRandom = [2, 2, 2, 2, 2, 2, 2, 2, 2, 4]
 
 # fill an empty space with the contents of the tiles after
 # [4, 0, 0, 2] -> [4, 2, 0, 0]
@@ -129,34 +130,35 @@ class Game:
         return highest
 
     # make a left move. Used for each other implementation
-    def left(self):
+    def left(self, print=True):
         changed = False
         # copy the board
         old_board = copy.deepcopy(self.board)
         for index, row in enumerate(self.board):
             self.board[index] = moveRowLeft(row)
-        gameValid, newVal = self.checkBoardAndAddRandomTile()
-        if not gameValid:
-            print("Game over. Score: " + self.score())
+        
+        newVal = 0
+        if (old_board != self.board): 
+            gameValid, newVal = self.checkBoardAndAddRandomTile()
         return newVal, old_board != self.board
 
     # flip board, move left, and flip board again. Seems complicated but is actually the simplest way to implement
     # [2, 0, 0, 4] -> [4, 0, 0, 2] -> [4, 2, 0, 0] -> [0, 0, 2, 4]
-    def right(self):
+    def right(self, print=True):
         self.flipBoard()
         newVal, moved = self.left()
         self.flipBoard()
         return newVal, moved
 
     # rotate rows counterclockwise, move left, and rotate rows clockwise
-    def up(self):
+    def up(self, print=True):
         self.rotateCCW()
         newVal, moved = self.left()
         self.rotateCW()
         return newVal, moved
     
     # rotate rows clockwise, move left, and rotate rows counterclockwise
-    def down(self):
+    def down(self, print=True):
         self.rotateCW()
         newVal, moved = self.left()
         self.rotateCCW()

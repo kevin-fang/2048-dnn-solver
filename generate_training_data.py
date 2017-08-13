@@ -7,13 +7,14 @@ from game_2048 import Game
 LR = 1e-3
 
 goal_steps = 20000
-score_requirement = 250
+score_requirement = 300
 
 up = [1, 0, 0, 0]
 down = [0, 1, 0, 0]
 left = [0, 0, 1, 0]
 right = [0, 0, 0, 1]
 
+movesEnglish = ['up', 'down', 'left', 'right']
 moves = [up, down, left, right]
 
 initial_games = 100000
@@ -40,11 +41,11 @@ def generate_initial_population():
         for step in range(goal_steps):
             action = random.choice(moves)
             observation, total, reward, valid = game.oneHotMove(action)
-            choices.append(action)
+            choices.append(movesEnglish[np.argmax(action)])
             #print(observation)
 
             if len(prev_observation) > 0:
-                game_memory.append([prev_observation, action])
+                game_memory.append([observation, action])
             prev_observation = observation
             score += reward
             if not valid:
@@ -69,7 +70,7 @@ def generate_initial_population():
     print('Median score for accepted scores:',median(accepted_scores))
     print(Counter(accepted_scores))
     print(Counter(choices))
-    
+
     return training_data
 
 generate_initial_population()

@@ -6,6 +6,7 @@ from tflearn.layers.estimator import regression
 from statistics import mean, median
 from collections import Counter
 from game_2048 import Game
+from nn_model import neural_network_model
 
 LR = 1e-3
 
@@ -16,31 +17,6 @@ right = [0, 0, 0, 1]
 
 moves = [up, down, left, right]
 
-def neural_network_model(input_size):
-    network = input_data(shape = [None, input_size, 1], name='input')
-    
-    network = fully_connected(network, 128, activation='relu')
-    network = dropout(network, 0.8)
-
-    network = fully_connected(network, 256, activation='relu')
-    network = dropout(network, 0.8)
-
-    network = fully_connected(network, 512, activation='relu')
-    network = dropout(network, 0.8)
-
-    network = fully_connected(network, 256, activation='relu')
-    network = dropout(network, 0.8)
-
-    network = fully_connected(network, 128, activation='relu')
-    network = dropout(network, 0.8)
-
-    network = fully_connected(network, 4, activation='softmax')
-    network = regression(network, optimizer='adam', learning_rate=LR, loss="categorical_crossentropy", name="targets")
-
-    model = tflearn.DNN(network, tensorboard_dir='log')
-    return model
-
-
 model = neural_network_model(16)
 model.load('trained_nn.model')
 
@@ -49,8 +25,8 @@ choices = []
 
 game = Game()
 goal_steps = 20000
-training_data = np.load('saved_training.npy')
-for each_game in range(100):
+for each_game in range(5):
+    print("Playing game:", each_game)
     score = 0
     game_memory = []
     prev_obs = []
@@ -62,7 +38,7 @@ for each_game in range(100):
             choice = np.argmax(action)
         else:
             action = [0, 0, 0, 0]
-            choice = np.argmax(model.predict(prev_obs.reshape(-1, len(training_data[0][0]),1)))
+            choice = np.argmax(model.predict(prev_obs.reshape(-1, 16, 1)))
             action[choice] = 1
 
         choices.append(choice)
@@ -74,6 +50,7 @@ for each_game in range(100):
         if not valid:
             break
     scores.append(score)
+    print("Score:", score)
 
 print('Average score', sum(scores)/len(scores))
 print('up: {}, down: {}, left: {}, right: {}'.format(choices.count(0)/len(choices), 
