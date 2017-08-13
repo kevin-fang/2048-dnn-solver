@@ -26,6 +26,7 @@ def generate_initial_population():
 
     # all scores
     scores = []
+    choices = []
 
     # scores above threashold
     accepted_scores = []
@@ -39,6 +40,7 @@ def generate_initial_population():
         for step in range(goal_steps):
             action = random.choice(moves)
             observation, total, reward, valid = game.oneHotMove(action)
+            choices.append(action)
             #print(observation)
 
             if len(prev_observation) > 0:
@@ -66,6 +68,7 @@ def generate_initial_population():
     print('Average accepted score:', mean(accepted_scores))
     print('Median score for accepted scores:',median(accepted_scores))
     print(Counter(accepted_scores))
+    print(Counter(choices))
     
     return training_data
 

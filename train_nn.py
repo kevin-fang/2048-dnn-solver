@@ -1,12 +1,14 @@
 import random
 import numpy as np
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
 import tflearn
 from tflearn.layers.core import input_data, dropout, fully_connected
 from tflearn.layers.estimator import regression
 from statistics import median, mean
 from collections import Counter
 
-LR = 1e-3
+LR = 3e-3
 
 def neural_network_model(input_size):
 
@@ -20,7 +22,7 @@ def neural_network_model(input_size):
 
     network = fully_connected(network, 512, activation='relu')
     network = dropout(network, 0.8)
-
+    
     network = fully_connected(network, 256, activation='relu')
     network = dropout(network, 0.8)
 
