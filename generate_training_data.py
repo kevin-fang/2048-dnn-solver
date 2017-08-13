@@ -42,7 +42,6 @@ def generate_initial_population():
             action = random.choice(moves)
             observation, total, reward, valid = game.oneHotMove(action)
             choices.append(movesEnglish[np.argmax(action)])
-            #print(observation)
 
             if len(prev_observation) > 0:
                 game_memory.append([observation, action])
@@ -57,7 +56,10 @@ def generate_initial_population():
             accepted_scores.append(score)
                 # [observation, action]
             for data in game_memory:
-                training_data.append([np.array(data[0]).ravel(), np.array(data[1])])
+                #print(data[0])
+                board = np.array(data[0])
+                board = game.scaled(board)
+                training_data.append([board.ravel(), np.array(data[1])])
 
         game.reset()
         scores.append(score)
@@ -73,4 +75,5 @@ def generate_initial_population():
 
     return training_data
 
-generate_initial_population()
+if __name__ == '__main__':
+    generate_initial_population()

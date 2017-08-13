@@ -19,7 +19,8 @@ choices = []
 game = Game()
 goal_steps = 20000
 training_data = np.load('saved_training.npy')
-for each_game in range(100):
+num_tests = 1000
+for each_game in range(num_tests):
     score = 0
     game_memory = []
     prev_obs = []
@@ -38,6 +39,7 @@ for each_game in range(100):
         if not valid:
             break
     scores.append(score)
+    print('game_num:', each_game, "score:", score)
 
 print('Average score', sum(scores)/len(scores))
 print('up: {}, down: {}, left: {}, right: {}'.format(choices.count(0)/len(choices), 

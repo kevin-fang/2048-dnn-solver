@@ -10,8 +10,7 @@ from statistics import median, mean
 from collections import Counter
 
 def train_model(training_data, model=False):
-
-    # get training data from numpy
+    # get training data from numpy array training_data
     X = np.array([i[0] for i in training_data]).reshape(-1, len(training_data[0][0]), 1)
     y = [i[1] for i in training_data]
 
@@ -22,8 +21,10 @@ def train_model(training_data, model=False):
     model.fit({'input': X}, {'targets': y}, n_epoch=5, snapshot_step=500, show_metric=True, run_id='2048_learning')
     return model
 
-training_data = np.load('saved_training.npy')
+def run_train():
+    training_data = np.load('saved_training.npy')
+    model = train_model(training_data)
+    model.save('models/trained_nn.model')
 
-model = train_model(training_data)
-
-model.save('trained_nn.model')
+if __name__ == "__main__":
+    run_train()

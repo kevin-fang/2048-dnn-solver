@@ -99,6 +99,16 @@ class Game:
         else:
             return True
 
+    def scale(self, board):
+        #print(board)
+        maxVal = np.amax(board)
+        board = np.log2(board)
+        board[board == -np.inf] = 0
+        board = board / np.log2(maxVal)
+        #print(board)
+
+        return board
+
     # adds a random 2 or 4 to the board
     def checkBoardAndAddRandomTile(self):
         emptyVals = []
