@@ -1,4 +1,5 @@
 from random import choice, randint
+import collections, copy
 
 zero = lambda x: True if x == 0 else False
 possibleRandom = [2, 4]
@@ -37,10 +38,10 @@ def moveRowLeft(row):
 
 
 class Game:
-    testingBoard = [[0, 2, 2, 2], 
+    testingBoard = [[0, 0, 0, 0], 
                      [0, 0, 0, 0], 
-                     [0, 4, 0, 2], 
-                     [0, 0, 32, 4]]
+                     [0, 0, 4, 0], 
+                     [0, 2, 0, 0]]
 
     # initialize with 4x4 board with two 2's randomly placed
     def __init__(self, testing=False, dieOnBadMove=False):
@@ -99,8 +100,8 @@ class Game:
     # adds a random 2 or 4 to the board
     def checkBoardAndAddRandomTile(self):
         emptyVals = []
-        for y, row in enumerate(self.board):
-            for x, val in enumerate(row):
+        for x, row in enumerate(self.board):
+            for y, val in enumerate(row):
                 if val == 0:
                     emptyVals.append((x, y))
         if len(emptyVals) == 0:
@@ -129,34 +130,36 @@ class Game:
     # make a left move. Used for each other implementation
     def left(self):
         changed = False
+        # copy the board
+        old_board = copy.deepcopy(self.board)
         for index, row in enumerate(self.board):
             self.board[index] = moveRowLeft(row)
         gameValid, newVal = self.checkBoardAndAddRandomTile()
         if not gameValid:
             print("Game over. Score: " + self.score())
-        return newVal
+        return newVal, old_board != self.board
 
     # flip board, move left, and flip board again. Seems complicated but is actually the simplest way to implement
     # [2, 0, 0, 4] -> [4, 0, 0, 2] -> [4, 2, 0, 0] -> [0, 0, 2, 4]
     def right(self):
         self.flipBoard()
-        newVal = self.left()
+        newVal, moved = self.left()
         self.flipBoard()
-        return newVal
+        return newVal, moved
 
     # rotate rows counterclockwise, move left, and rotate rows clockwise
     def up(self):
         self.rotateCCW()
-        newVal = self.left()
+        newVal, moved = self.left()
         self.rotateCW()
-        return newVal
+        return newVal, moved
     
     # rotate rows clockwise, move left, and rotate rows counterclockwise
     def down(self):
         self.rotateCW()
-        newVal = self.left()
+        newVal, moved = self.left()
         self.rotateCCW()
-        return newVal
+        return newVal, moved
 
     def stats(self):
         #observation, reward, done, info = game.stats()
@@ -171,17 +174,17 @@ class Game:
     # [up, down, left, right]
     def oneHotMove(self, oneHotArray):
         if oneHotArray[0] == 1: 
-            newVal = self.up()
+            newVal, moved = self.up()
         elif oneHotArray[1] == 1:
-            newVal = self.down()
+            newVal, moved = self.down()
         elif oneHotArray[2] == 1:
-            newVal = self.left()
+            newVal, moved = self.left()
         elif oneHotArray[3] == 1:
-            newVal = self.right()
+            newVal, moved = self.right()
 
         
         observation = self.board
         total = self.score()
-        reward = newVal
+        reward = newVal if moved else 0
         valid = True if self.valid() else False
         return observation, total, reward, valid
