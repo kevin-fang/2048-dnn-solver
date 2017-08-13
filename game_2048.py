@@ -35,14 +35,15 @@ def moveRowLeft(row):
             row = fillEmpty(row, index)
     return row
 
-class Board:
+
+class Game:
     testingBoard = [[0, 2, 2, 2], 
                      [0, 0, 0, 0], 
                      [0, 4, 0, 2], 
                      [0, 0, 32, 4]]
 
     # initialize with 4x4 board with two 2's randomly placed
-    def __init__(self, testing=False):
+    def __init__(self, testing=False, dieOnBadMove=False):
         # create 4x4 array of zeros
         self.board = [[0] * 4 for i in range(4)]
 
@@ -58,7 +59,13 @@ class Board:
         self.board[x2][y2] = choice(possibleRandom)
         if (testing):
             self.board = self.testingBoard
+
+        self.dieOnBadMove = dieOnBadMove # TODO: add dying immediately on bad move
+        self.dead = False
     
+    def reset(self):
+        self.__init__()
+
     def flipBoard(self):
         board = self.board
         for index, row in enumerate(board):
@@ -71,7 +78,14 @@ class Board:
         for i in range(3):
             self.rotateCW()
 
-    def gameValid(self):
+    def printBoard(self):
+        print('', self.board[0], '\n', self.board[1], '\n', self.board[2], '\n', self.board[3], '\n')
+    
+
+    def valid(self):
+        if (self.dead):
+            return False
+
         emptyVals = []
         for y, row in enumerate(self.board):
             for x, val in enumerate(row):
@@ -95,50 +109,79 @@ class Board:
             newCoords = choice(emptyVals)
             newVal = choice(possibleRandom)
             self.board[newCoords[0]][newCoords[1]] = newVal
-            return True
+            return True, newVal
 
-    def calculateScore(self):
+    def score(self):
         score = 0
         for y, row in enumerate(self.board):
             for x, val in enumerate(row):
                 score += val
         return score
 
+    def highest(self):
+        highest = 0
+        for y, row in enumerate(self.board):
+            for x, val in enumerate(row):
+                if val > highest:
+                    highest = val
+        return highest
+
     # make a left move. Used for each other implementation
     def left(self):
+        changed = False
         for index, row in enumerate(self.board):
             self.board[index] = moveRowLeft(row)
-        gameValid = self.checkBoardAndAddRandomTile()
+        gameValid, newVal = self.checkBoardAndAddRandomTile()
         if not gameValid:
-            print("Game over. Score: " + self.calculateScore())
+            print("Game over. Score: " + self.score())
+        return newVal
 
     # flip board, move left, and flip board again. Seems complicated but is actually the simplest way to implement
     # [2, 0, 0, 4] -> [4, 0, 0, 2] -> [4, 2, 0, 0] -> [0, 0, 2, 4]
     def right(self):
         self.flipBoard()
-        self.left()
+        newVal = self.left()
         self.flipBoard()
+        return newVal
 
     # rotate rows counterclockwise, move left, and rotate rows clockwise
     def up(self):
         self.rotateCCW()
-        self.left()
+        newVal = self.left()
         self.rotateCW()
+        return newVal
     
     # rotate rows clockwise, move left, and rotate rows counterclockwise
     def down(self):
         self.rotateCW()
-        self.left()
+        newVal = self.left()
         self.rotateCCW()
+        return newVal
+
+    def stats(self):
+        #observation, reward, done, info = game.stats()
+        observation = self.board
+        total = self.score()
+        highest = self.highest()
+        valid = True if self.valid() else False
+        return observation, total, highest, valid
+
 
     # parse an array and make the appropriate move. For AI purposes.
     # [up, down, left, right]
     def oneHotMove(self, oneHotArray):
         if oneHotArray[0] == 1: 
-            self.up()
+            newVal = self.up()
         elif oneHotArray[1] == 1:
-            self.down()
+            newVal = self.down()
         elif oneHotArray[2] == 1:
-            self.left()
+            newVal = self.left()
         elif oneHotArray[3] == 1:
-            self.right()
+            newVal = self.right()
+
+        
+        observation = self.board
+        total = self.score()
+        reward = newVal
+        valid = True if self.valid() else False
+        return observation, total, reward, valid
