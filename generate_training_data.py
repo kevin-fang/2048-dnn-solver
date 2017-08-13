@@ -1,6 +1,5 @@
 import random
 import numpy as np
-import gym
 #import tflearn
 #from tflearn.layers.core import input_data, dropout, fully_connected
 #from tflearn.layers.estimator import regression
@@ -10,8 +9,8 @@ from game_2048 import Game
 
 LR = 1e-3
 
-goal_steps = 100000
-score_requirement = 120
+goal_steps = 20000
+score_requirement = 250
 
 up = [1, 0, 0, 0]
 down = [0, 1, 0, 0]
@@ -20,7 +19,7 @@ right = [0, 0, 0, 1]
 
 moves = [up, down, left, right]
 
-initial_games = 500
+initial_games = 100000
 
 game = Game(False)
 
@@ -52,20 +51,20 @@ def generate_initial_population():
         game_memory = []
         prev_observation = []
 
-        for _ in range(goal_steps):
+        for step in range(goal_steps):
             action = random.choice(moves)
             observation, total, reward, valid = game.oneHotMove(action)
 
             if len(prev_observation) > 0:
                 game_memory.append([prev_observation, action])
             prev_observation = observation
-            score = total
+            score += reward
             if not valid:
-                print("not valid; block total:", total, "score", score)
+                #print("not valid; block total:", score)
                 break
 
         if score >= score_requirement:
-            print("score", score, "iter:", i, "accepted len:", len(accepted_scores) + 1)
+            print("score", score, "total:", total, "iter:", i, "accepted len:", len(accepted_scores) + 1)
             accepted_scores.append(score)
                 # [observation, action]
             for data in game_memory:
