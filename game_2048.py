@@ -1,5 +1,6 @@
 from random import choice, randint
 import collections, copy
+import numpy as np
 
 zero = lambda x: True if x == 0 else False
 possibleRandom = [2, 4]
@@ -160,15 +161,6 @@ class Game:
         newVal, moved = self.left()
         self.rotateCCW()
         return newVal, moved
-
-    def stats(self):
-        #observation, reward, done, info = game.stats()
-        observation = self.board
-        total = self.score()
-        highest = self.highest()
-        valid = True if self.valid() else False
-        return observation, total, highest, valid
-
 
     # parse an array and make the appropriate move. For AI purposes.
     # [up, down, left, right]

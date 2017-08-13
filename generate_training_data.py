@@ -1,8 +1,5 @@
 import random
 import numpy as np
-#import tflearn
-#from tflearn.layers.core import input_data, dropout, fully_connected
-#from tflearn.layers.estimator import regression
 from statistics import mean, median
 from collections import Counter
 from game_2048 import Game
@@ -23,18 +20,6 @@ initial_games = 100000
 
 game = Game(False)
 
-def some_random_games_first():
-    for episode in range(5):
-        game.reset()
-        for _ in range(goal_steps):
-            action = random.choice(moves)
-            observation, score, highest, valid = game.oneHotMove(action)
-            print(observation, score, highest, valid)
-            if not valid:
-                break
-
-#some_random_games_first()
-
 def generate_initial_population():
     # [observations, moves]
     training_data = []
@@ -54,6 +39,7 @@ def generate_initial_population():
         for step in range(goal_steps):
             action = random.choice(moves)
             observation, total, reward, valid = game.oneHotMove(action)
+            #print(observation)
 
             if len(prev_observation) > 0:
                 game_memory.append([prev_observation, action])
@@ -68,7 +54,7 @@ def generate_initial_population():
             accepted_scores.append(score)
                 # [observation, action]
             for data in game_memory:
-                training_data.append([data[0], data[1]])
+                training_data.append([np.array(data[0]).ravel(), np.array(data[1])])
 
         game.reset()
         scores.append(score)
