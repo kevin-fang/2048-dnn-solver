@@ -2,6 +2,9 @@
 An 2048 solver using TensorFlow and its abstraction library TFLearn. The 2048 game is implemented (and I believe it works fine), but the neural network is currently not working.
 
 ## How to run
+
+Note that TensorFlow, TFLearn, and NumPy are all required dependencies.
+
 To generate training data, run `python generate_training_data.py`.
 
 To train the neural net on the generated training data, run `python train_nn.py`
