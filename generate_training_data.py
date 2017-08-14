@@ -41,6 +41,10 @@ def generate_initial_population():
         for step in range(goal_steps):
             action = random.choice(moves)
             observation, total, reward, valid = game.oneHotMove(action)
+            while (reward == 0):
+                action = random.choice(moves)
+                observation, total, reward, valid = game.oneHotMove(action)
+
             choices.append(movesEnglish[np.argmax(action)])
 
             if len(prev_observation) > 0:
@@ -58,7 +62,7 @@ def generate_initial_population():
             for data in game_memory:
                 #print(data[0])
                 board = np.array(data[0])
-                board = game.scaled(board)
+                board = game.scale(board)
                 training_data.append([board.ravel(), np.array(data[1])])
 
         game.reset()
